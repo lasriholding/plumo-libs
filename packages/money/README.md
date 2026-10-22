@@ -8,6 +8,12 @@ Money math, HT/TTC, parsing, locale formatting, and French amount-in-words for P
 pnpm add @plumo/money
 ```
 
+Learn script (no DB):
+
+```bash
+pnpm --filter @plumo/money learn
+```
+
 ## Usage
 
 ```ts
