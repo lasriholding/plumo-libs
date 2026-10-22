@@ -10,6 +10,7 @@ Shared npm packages for Plumo ERP systems.
 | `@plumo/csv` | Build, parse, Excel-FR export, browser download |
 | `@plumo/print` | HTML print engine, commercial templates, preview/bulk |
 | `@plumo/company-finance` | Generic company balance / ledger / situation (any schema) |
+| `@plumo/stock` | Stock movements, adjustments, availability, history planning |
 
 ## Develop
 

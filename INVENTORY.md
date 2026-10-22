@@ -11,6 +11,7 @@ Stack target: Nest API + Next app + Prisma + Postgres + Clerk (OBS-shaped)
 | `@plumo/csv` | `0.1.0` | [`packages/csv`](packages/csv) | — |
 | `@plumo/print` | `0.1.0` | [`packages/print`](packages/print) | `@plumo/money` |
 | `@plumo/company-finance` | `0.1.0` | [`packages/company-finance`](packages/company-finance) | `@plumo/money` |
+| `@plumo/stock` | `0.1.0` | [`packages/stock`](packages/stock) | — |
 
 ---
 
@@ -102,6 +103,21 @@ Schema-agnostic company AR/AP balances, ledger mapping, timeline, period summary
 | `@plumo/permissions` | Keep role matrices in each ERP until RBAC is unified |
 | Nest org / approval | Intentionally out of scope (framework-specific) |
 | `@plumo/react-crud` | Next candidate |
+
+---
+
+### `@plumo/stock`
+
+Pure stock apply / diff / availability / history planning (no DB).
+
+| Area | Exports |
+|------|---------|
+| Apply | `applyStockChange`, `adjustToQuantity`, `applyMany` |
+| Availability | `reservedQuantity`, `availableQuantity`, `exceedsAvailable` |
+| Lines / docs | `mapLines`, `qtyByItem`, `diffDocumentStock`, `planStockMovements` |
+| Classify | `classifyStockLevel`, `filterByStockLevel` |
+
+**Inspired by** BHL `server/crud/stock.ts` + shared `reservedQuantity` / OBS stock history deltas.
 
 ## Source ERPs
 

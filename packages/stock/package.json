@@ -1,0 +1,37 @@
+{
+  "name": "@plumo/stock",
+  "version": "0.1.0",
+  "description": "Generic stock movements, adjustments, availability, and history math",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "examples"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "learn": "tsx examples/learn.ts"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plumo/plumo-libs.git",
+    "directory": "packages/stock"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
