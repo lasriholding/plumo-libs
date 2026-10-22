@@ -1,0 +1,15 @@
+{
+  "name": "plumo-libs",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared Plumo ERP libraries",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.18.0"
+}
