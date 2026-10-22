@@ -9,6 +9,7 @@ Shared npm packages for Plumo ERP systems.
 | `@plumo/money` | Money math, HT/TTC, formatting, French amount-in-words |
 | `@plumo/csv` | Build, parse, Excel-FR export, browser download |
 | `@plumo/print` | HTML print engine, commercial templates, preview/bulk |
+| `@plumo/company-finance` | Generic company balance / ledger / situation (any schema) |
 
 ## Develop
 

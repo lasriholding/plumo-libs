@@ -8,6 +8,19 @@ importers:
 
   .: {}
 
+  packages/company-finance:
+    dependencies:
+      '@plumo/money':
+        specifier: workspace:*
+        version: link:../money
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+
   packages/csv:
     devDependencies:
       tsup:

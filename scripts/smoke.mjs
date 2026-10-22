@@ -21,6 +21,15 @@ import {
   renderDocument,
   buildPrintHtml,
 } from "../packages/print/dist/index.js"
+import {
+  Effect,
+  buildBalanceFromEntries,
+  buildBalanceFromTotals,
+  buildTimeline,
+  classifyBalance,
+  createRuleMapper,
+  mapToLedger,
+} from "../packages/company-finance/dist/index.js"
 
 assert.equal(roundMoney(10.555), 10.56)
 assert.equal(parseMoney("1 234,50 MAD"), 1234.5)
@@ -100,4 +109,41 @@ const html = buildPrintHtml(commercial, {
 })
 assert.ok(html.includes("<!DOCTYPE html>"))
 
-console.log("smoke ok — money / csv / print")
+const fromTotals = buildBalanceFromTotals({
+  chargedToThem: 1000,
+  chargedToUs: 400,
+  settledByThem: 200,
+  settledByUs: 50,
+})
+assert.equal(fromTotals.owedByThem, 800)
+assert.equal(fromTotals.owedByUs, 350)
+assert.equal(fromTotals.net, 450)
+
+const docs = [
+  { kind: "sale", when: "2026-01-02", total: 1000, ref: "S1", id: "1" },
+  { kind: "purchase", when: "2026-01-03", total: 400, ref: "P1", id: "2" },
+  { kind: "pay_in", when: "2026-01-04", total: 200, ref: "IN1", id: "3" },
+  { kind: "pay_out", when: "2026-01-05", total: 50, ref: "OUT1", id: "4" },
+]
+const mapper = createRuleMapper({
+  key: (d) => d.kind,
+  rules: {
+    sale: Effect.chargeThem,
+    purchase: Effect.chargeUs,
+    pay_in: Effect.settleThem,
+    pay_out: Effect.settleUs,
+  },
+  id: (d) => d.id,
+  date: (d) => d.when,
+  amount: (d) => d.total,
+  reference: (d) => d.ref,
+})
+const ledger = mapToLedger(docs, mapper)
+const fromLedger = buildBalanceFromEntries(ledger)
+assert.equal(fromLedger.net, 450)
+assert.equal(classifyBalance(fromLedger), "both")
+const timeline = buildTimeline(ledger)
+assert.equal(timeline.length, 4)
+assert.equal(timeline[3].running.net, 450)
+
+console.log("smoke ok — money / csv / print / company-finance")

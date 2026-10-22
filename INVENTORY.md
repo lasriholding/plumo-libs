@@ -10,6 +10,7 @@ Stack target: Nest API + Next app + Prisma + Postgres + Clerk (OBS-shaped)
 | `@plumo/money` | `0.1.0` | [`packages/money`](packages/money) | — |
 | `@plumo/csv` | `0.1.0` | [`packages/csv`](packages/csv) | — |
 | `@plumo/print` | `0.1.0` | [`packages/print`](packages/print) | `@plumo/money` |
+| `@plumo/company-finance` | `0.1.0` | [`packages/company-finance`](packages/company-finance) | `@plumo/money` |
 
 ---
 
@@ -71,13 +72,36 @@ Browser HTML print: classic ledger + commercial documents.
 
 ---
 
+---
+
+### `@plumo/company-finance`
+
+Schema-agnostic company AR/AP balances, ledger mapping, timeline, period summary.
+
+| Area | Exports |
+|------|---------|
+| Balance | `buildBalanceFromTotals`, `buildBalanceFromEntries`, `balanceOf`, `emptyBalance`, `mergeBalances`, `indexBalances` |
+| Effects | `Effect`, `charge`, `settle`, `delta`, `entryDelta`, `netDelta` |
+| Mapping | `mapToLedger`, `createFieldMapper`, `createRuleMapper` |
+| Timeline | `buildTimeline`, `buildPeriodTimeline`, `filterEntriesByPeriod` |
+| Period | `summarizeEntries`, `summarizePeriod`, `groupEntries`, `balancesByGroup` |
+| Classify | `classifyBalance`, `filterByBalanceState` |
+
+**Design:** apps supply mappers/rules for *their* document shapes — no Nest/Prisma/OBS/BHL types in the package.
+
+**Inspired by**
+
+- BHL: `old_projects/bhl/src/server/crud/financial.ts` (owedByThem / owedByUs / net)
+- OBS: `company-financial-summary.util.ts`, `lib/company-situation.ts` (running balance)
+
 ## Not packaged (by design)
 
 | Idea | Status |
 |------|--------|
 | `@plumo/document-math` | Removed — use `@plumo/money` (`calcLine`, `buildTotals`, `ttcToHt`, …) |
-| `@plumo/permissions` | Removed — keep role matrices in each ERP until RBAC is unified |
-| Nest org / approval / React CRUD | Later (Tier 2) — not in this repo yet |
+| `@plumo/permissions` | Keep role matrices in each ERP until RBAC is unified |
+| Nest org / approval | Intentionally out of scope (framework-specific) |
+| `@plumo/react-crud` | Next candidate |
 
 ## Source ERPs
 
