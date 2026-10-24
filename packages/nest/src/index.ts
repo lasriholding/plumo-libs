@@ -40,3 +40,44 @@ export {
 export type { OrgScopedDelegate } from "./require-in-org.js"
 
 export { OrgCrudService } from "./crud.service.js"
+
+export { OrgListCache, defaultOrgListCache } from "./org-list-cache.js"
+export type { OrgListCacheOptions } from "./org-list-cache.js"
+
+export {
+  ApprovalRole,
+  approvalOnCreate,
+  approvalOnApprove,
+  canSetApprovalStatus,
+  buildApprovalStatusPatch,
+  applyApprovalUpdate,
+} from "./approval.js"
+export type {
+  ApprovalStatusValue,
+  ApprovalActor,
+  ApprovalFields,
+  ApprovalStatusPatch,
+} from "./approval.js"
+
+export {
+  mapApprovableCreate,
+  runApprovalUpdate,
+  withActor,
+} from "./trade-approvable.js"
+
+export { OrgNestedCrudService } from "./nested-crud.service.js"
+export type { NestedResourceConfig } from "./nested-crud.service.js"
+
+export {
+  isPrismaUnique,
+  prismaUniqueFields,
+  mapPrismaUnique,
+  prismaUniqueError,
+} from "./map-prisma-unique.js"
+export type { PrismaUniqueLike } from "./map-prisma-unique.js"
+
+export {
+  TradeListQueryDto,
+  CreateTradeLineItemDto,
+  UpdateApprovalDto,
+} from "./trade-dto.js"

@@ -14,17 +14,20 @@ import type {
   OrgRow,
 } from "./prisma-delegate.js"
 import { requireInOrg } from "./require-in-org.js"
+import {
+  defaultOrgListCache,
+  type OrgListCache,
+} from "./org-list-cache.js"
 
 /**
  * DRF ModelViewSet analogue — org-scoped CRUD.
  * Subclass only for domain hooks / extra actions.
- *
- * List-cache plugin is wired in a later step via optional 3rd ctor arg.
  */
 export class OrgCrudService {
   constructor(
     protected readonly db: DelegateHost,
     protected readonly resource: DefinedResource,
+    protected readonly listCache: OrgListCache = defaultOrgListCache,
   ) {}
 
   protected get delegate(): ModelDelegate {
@@ -39,7 +42,12 @@ export class OrgCrudService {
     orgId: string,
     query: Record<string, unknown> = {},
   ): Promise<PaginatedResult<OrgRow>> {
-    return this.loadList(orgId, query)
+    const load = () => this.loadList(orgId, query)
+    const cfg = this.resource.listCache
+    if (!cfg) return load()
+    return this.listCache.getOrSet(cfg.scope, orgId, query, load, {
+      ttlMs: cfg.ttlMs,
+    })
   }
 
   protected async loadList(
@@ -92,10 +100,12 @@ export class OrgCrudService {
   ): Promise<OrgRow> {
     await this.assertCreate(orgId, data)
     const payload = await this.mapCreateData(orgId, data)
-    return this.delegate.create({
+    const row = await this.delegate.create({
       data: { ...payload, orgId },
       ...(this.resource.include ? { include: this.resource.include } : {}),
     })
+    this.invalidateListCache(orgId)
+    return row
   }
 
   async update(
@@ -106,16 +116,25 @@ export class OrgCrudService {
     await this.retrieve(orgId, id)
     await this.assertUpdate(orgId, id, data)
     const payload = await this.mapUpdateData(orgId, id, data)
-    return this.delegate.update({
+    const row = await this.delegate.update({
       where: { id },
       data: payload,
       ...(this.resource.include ? { include: this.resource.include } : {}),
     })
+    this.invalidateListCache(orgId)
+    return row
   }
 
   async destroy(orgId: string, id: number): Promise<OrgRow> {
     await this.retrieve(orgId, id)
-    return this.delegate.delete({ where: { id } })
+    const row = await this.delegate.delete({ where: { id } })
+    this.invalidateListCache(orgId)
+    return row
+  }
+
+  protected invalidateListCache(orgId: string) {
+    const cfg = this.resource.listCache
+    if (cfg) this.listCache.invalidate(cfg.scope, orgId)
   }
 
   protected extraWhere(
