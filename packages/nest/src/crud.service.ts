@@ -19,6 +19,8 @@ import {
   type OrgListCache,
 } from "./org-list-cache.js"
 
+export type ListResult = PaginatedResult<OrgRow> | OrgRow[]
+
 /**
  * DRF ModelViewSet analogue — org-scoped CRUD.
  * Subclass only for domain hooks / extra actions.
@@ -38,40 +40,84 @@ export class OrgCrudService {
     return d as ModelDelegate
   }
 
+  protected get listMode(): "paginated" | "all" {
+    return this.resource.listMode ?? "paginated"
+  }
+
+  /**
+   * List rows for org.
+   * - `listMode: 'paginated'` (default) → `{ data, pagination }`
+   * - `listMode: 'all'` → full array (filters/search still apply; no skip/take)
+   */
   async list(
     orgId: string,
     query: Record<string, unknown> = {},
-  ): Promise<PaginatedResult<OrgRow>> {
-    const load = () => this.loadList(orgId, query)
+  ): Promise<ListResult> {
+    const load = (): Promise<ListResult> =>
+      this.listMode === "all"
+        ? this.loadListAll(orgId, query)
+        : this.loadListPage(orgId, query)
     const cfg = this.resource.listCache
     if (!cfg) return load()
-    return this.listCache.getOrSet(cfg.scope, orgId, query, load, {
-      ttlMs: cfg.ttlMs,
-    })
+    const variant = this.listMode === "all" && Object.keys(query).length === 0
+      ? ""
+      : query
+    return this.listCache.getOrSet<ListResult>(
+      cfg.scope,
+      orgId,
+      variant,
+      load,
+      { ttlMs: cfg.ttlMs },
+    )
   }
 
-  protected async loadList(
+  protected buildListWhere(
+    orgId: string,
+    query: Record<string, unknown>,
+  ): Record<string, unknown> {
+    return {
+      ...buildWhereFromQuery(this.resource, orgId, query),
+      ...this.extraWhere(orgId, query),
+    }
+  }
+
+  protected listFindArgs(where: Record<string, unknown>, orderBy: unknown) {
+    return {
+      where,
+      orderBy,
+      ...(this.resource.listSelect
+        ? { select: this.resource.listSelect }
+        : this.resource.include
+          ? { include: this.resource.include }
+          : {}),
+    }
+  }
+
+  protected async loadListAll(
+    orgId: string,
+    query: Record<string, unknown>,
+  ): Promise<OrgRow[]> {
+    const where = this.buildListWhere(orgId, query)
+    const orderBy = resolveOrder(this.resource, query as never)
+    const data = await this.delegate.findMany(
+      this.listFindArgs(where, orderBy),
+    )
+    return data.map((row) => this.transformListItem(row))
+  }
+
+  protected async loadListPage(
     orgId: string,
     query: Record<string, unknown>,
   ): Promise<PaginatedResult<OrgRow>> {
     const { page, limit, skip } = resolvePagination(query)
-    const where = {
-      ...buildWhereFromQuery(this.resource, orgId, query),
-      ...this.extraWhere(orgId, query),
-    }
+    const where = this.buildListWhere(orgId, query)
     const orderBy = resolveOrder(this.resource, query as never)
 
     const [data, total] = await Promise.all([
       this.delegate.findMany({
-        where,
-        orderBy,
+        ...this.listFindArgs(where, orderBy),
         skip,
         take: limit,
-        ...(this.resource.listSelect
-          ? { select: this.resource.listSelect }
-          : this.resource.include
-            ? { include: this.resource.include }
-            : {}),
       }),
       this.delegate.count({ where }),
     ])

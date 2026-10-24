@@ -41,11 +41,30 @@ describe("OrgCrudService", () => {
 
     await svc.create("org_a", { name: "Cable", brandId: 2 })
     const listed = await svc.list("org_a", { brandId: 1 })
+    assert.ok(!Array.isArray(listed))
     assert.equal(listed.data.length, 1)
     assert.equal(listed.data[0]?.name, "Laptop")
 
     await svc.destroy("org_a", created.id)
     assert.equal(await product.count({ where: { orgId: "org_a" } }), 1)
+  })
+
+  it("listMode all returns full array", async () => {
+    const category = createMockDelegate()
+    const svc = new OrgCrudService(
+      { category },
+      defineResource({
+        model: "category",
+        listMode: "all",
+        listCache: { scope: "categories", ttlMs: 60_000 },
+        defaultOrder: { createdAt: "desc" },
+      }),
+    )
+    await svc.create("o1", { name: "A" })
+    await svc.create("o1", { name: "B" })
+    const all = await svc.list("o1", {})
+    assert.ok(Array.isArray(all))
+    assert.equal(all.length, 2)
   })
 })
 

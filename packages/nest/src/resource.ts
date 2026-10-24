@@ -26,6 +26,11 @@ export type ResourceConfig = {
    * create/update/destroy invalidate the scope for that org.
    */
   listCache?: ListCacheConfig
+  /**
+   * `paginated` (default) → `{ data, pagination }`.
+   * `all` → full `OrgRow[]` (no page/limit); typical for small cached catalogs.
+   */
+  listMode?: "paginated" | "all"
 }
 
 export type DefinedResource = ResourceConfig & {

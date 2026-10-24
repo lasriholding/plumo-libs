@@ -34,15 +34,18 @@ describe("OrgCrudService listCache", () => {
 
     await svc.create("o1", { name: "A" })
     const first = await svc.list("o1", {})
+    assert.ok(!Array.isArray(first))
     assert.equal(first.data.length, 1)
 
     // mutate underlying store without going through service — cache would be stale
     await brand.create({ data: { orgId: "o1", name: "ghost" } })
     const cached = await svc.list("o1", {})
+    assert.ok(!Array.isArray(cached))
     assert.equal(cached.data.length, 1)
 
     await svc.create("o1", { name: "B" })
     const after = await svc.list("o1", {})
+    assert.ok(!Array.isArray(after))
     assert.equal(after.data.length, 3)
   })
 })

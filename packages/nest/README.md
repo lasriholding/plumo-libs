@@ -67,14 +67,17 @@ List response shape: `{ data, pagination }` (`page`, `limit`, `total`, `totalPag
 | `TradeListQueryDto` / `CreateTradeLineItemDto` | Shared trade Find / line DTOs |
 | `findManyPaginated` | Low-level paginated findMany |
 
-Opt-in list cache:
+Opt-in list cache + unpaginated catalog lists:
 
 ```ts
 defineResource({
-  model: 'brand',
-  listCache: { scope: 'brands', ttlMs: 60_000 },
+  model: 'category',
+  listMode: 'all', // full array instead of { data, pagination }
+  listCache: { scope: 'categories', ttlMs: 60_000 },
 })
 ```
+
+`OrgCrudController` reads org from `req.auth.orgId` (Clerk) then `?orgId=`. Override a single handler when permissions differ (e.g. looser `findAll`).
 
 Unique conflict in convert/create:
 

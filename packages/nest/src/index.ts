@@ -40,6 +40,7 @@ export {
 export type { OrgScopedDelegate } from "./require-in-org.js"
 
 export { OrgCrudService } from "./crud.service.js"
+export type { ListResult } from "./crud.service.js"
 export { OrgCrudController } from "./crud.controller.js"
 
 export { OrgListCache, defaultOrgListCache } from "./org-list-cache.js"
