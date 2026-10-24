@@ -14,18 +14,18 @@ import type { OrgCrudService } from "./crud.service.js"
 
 /** Minimal request shape — Clerk AuthGuard sets `auth.orgId`. */
 export type AuthLikeRequest = {
-  auth?: { orgId?: string | null }
+  auth?: { orgId?: string | null; orgRole?: string | null }
 }
 
 /**
  * Optional base controller for org-scoped CRUD.
  *
- * Org resolution order:
- * 1. `req.auth.orgId` (Clerk / AuthGuard — same source as `@OrgId()`)
- * 2. `?orgId=` query (local preview / scripts)
+ * Body/query typed as `any` so subclasses can use concrete DTOs without
+ * TS2416 (parameter contravariance).
  *
- * Override individual handlers when a route needs different permissions
- * (e.g. looser `findAll` for POS) — re-declare `@Get()` + guards, call `super`.
+ * Org resolution order:
+ * 1. `req.auth.orgId` (Clerk / AuthGuard)
+ * 2. `?orgId=` query (local preview / scripts)
  */
 export abstract class OrgCrudController {
   protected abstract readonly service: OrgCrudService
@@ -46,21 +46,20 @@ export abstract class OrgCrudController {
   }
 
   @Post()
-  create(
-    @Req() req: AuthLikeRequest,
-    @Body() body: Record<string, unknown>,
-    @Query() query: Record<string, unknown>,
-  ) {
-    return this.service.create(this.resolveOrgId(req, query), body)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create(@Req() req: AuthLikeRequest, @Body() body: any, @Query() query: any) {
+    return this.service.create(
+      this.resolveOrgId(req, query as Record<string, unknown>),
+      body as Record<string, unknown>,
+    )
   }
 
   @Get()
-  findAll(
-    @Req() req: AuthLikeRequest,
-    @Query() query: Record<string, unknown>,
-  ) {
-    const orgId = this.resolveOrgId(req, query)
-    const { orgId: _, ...rest } = query
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  findAll(@Req() req: AuthLikeRequest, @Query() query: any) {
+    const q = (query ?? {}) as Record<string, unknown>
+    const orgId = this.resolveOrgId(req, q)
+    const { orgId: _, ...rest } = q
     return this.service.list(orgId, rest)
   }
 
@@ -68,27 +67,41 @@ export abstract class OrgCrudController {
   findOne(
     @Req() req: AuthLikeRequest,
     @Param("id", ParseIntPipe) id: number,
-    @Query() query: Record<string, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Query() query: any,
   ) {
-    return this.service.retrieve(this.resolveOrgId(req, query), id)
+    return this.service.retrieve(
+      this.resolveOrgId(req, query as Record<string, unknown>),
+      id,
+    )
   }
 
   @Patch(":id")
   update(
     @Req() req: AuthLikeRequest,
     @Param("id", ParseIntPipe) id: number,
-    @Body() body: Record<string, unknown>,
-    @Query() query: Record<string, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Body() body: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Query() query: any,
   ) {
-    return this.service.update(this.resolveOrgId(req, query), id, body)
+    return this.service.update(
+      this.resolveOrgId(req, query as Record<string, unknown>),
+      id,
+      body as Record<string, unknown>,
+    )
   }
 
   @Delete(":id")
   remove(
     @Req() req: AuthLikeRequest,
     @Param("id", ParseIntPipe) id: number,
-    @Query() query: Record<string, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Query() query: any,
   ) {
-    return this.service.destroy(this.resolveOrgId(req, query), id)
+    return this.service.destroy(
+      this.resolveOrgId(req, query as Record<string, unknown>),
+      id,
+    )
   }
 }
