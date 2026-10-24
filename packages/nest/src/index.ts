@@ -21,6 +21,7 @@ export type {
   ResourceConfig,
   DefinedResource,
   ListCacheConfig,
+  OrderBy,
 } from "./resource.js"
 
 export { findManyPaginated } from "./find-many-paginated.js"
