@@ -32,7 +32,7 @@ export class OrgNestedCrudService {
   }
 
   protected delegate(model: string): ModelDelegate {
-    const d = this.db[model]
+    const d = (this.db as Record<string, unknown>)[model]
     if (!d || typeof d !== "object") {
       throw new Error(`No delegate for model "${model}"`)
     }

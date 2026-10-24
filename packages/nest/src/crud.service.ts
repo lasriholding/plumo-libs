@@ -31,7 +31,7 @@ export class OrgCrudService {
   ) {}
 
   protected get delegate(): ModelDelegate {
-    const d = this.db[this.resource.model]
+    const d = (this.db as Record<string, unknown>)[this.resource.model]
     if (!d || typeof d !== "object") {
       throw new Error(`No delegate for model "${this.resource.model}"`)
     }

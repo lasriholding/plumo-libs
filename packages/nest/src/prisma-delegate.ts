@@ -35,5 +35,8 @@ export type ModelDelegate = {
   delete(args: { where: { id: number } }): Promise<OrgRow>
 }
 
-/** Host that exposes named delegates (PrismaService). */
-export type DelegateHost = Record<string, ModelDelegate | unknown>
+/**
+ * Host that exposes named delegates (PrismaService).
+ * Typed as `object` so concrete Prisma clients assign without an index signature.
+ */
+export type DelegateHost = object
