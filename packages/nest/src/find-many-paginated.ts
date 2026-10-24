@@ -1,0 +1,36 @@
+import {
+  paginatedResult,
+  resolvePagination,
+  type PaginatedResult,
+} from "./pagination.js"
+import type { ModelDelegate, OrgRow } from "./prisma-delegate.js"
+
+/**
+ * Low-level paginated findMany + count (for services that skip OrgCrudService).
+ */
+export async function findManyPaginated(
+  delegate: ModelDelegate,
+  args: {
+    where?: Record<string, unknown>
+    orderBy?: unknown
+    include?: unknown
+    select?: unknown
+    page?: number
+    limit?: number
+  },
+): Promise<PaginatedResult<OrgRow>> {
+  const { page, limit, skip } = resolvePagination(args)
+  const where = args.where ?? {}
+  const [data, total] = await Promise.all([
+    delegate.findMany({
+      where,
+      orderBy: args.orderBy,
+      skip,
+      take: limit,
+      include: args.include,
+      select: args.select,
+    }),
+    delegate.count({ where }),
+  ])
+  return paginatedResult(data, total, page, limit)
+}

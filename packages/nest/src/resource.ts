@@ -1,0 +1,71 @@
+import { applySearch, type FilterBackend, type WhereClause } from "./filters.js"
+
+export type ListCacheConfig = {
+  /** Cache scope key, e.g. 'brands' — invalidate uses same scope. */
+  scope: string
+  /** Override default TTL (5 min). */
+  ttlMs?: number
+}
+
+export type ResourceConfig = {
+  /** Logical model name (also key on PrismaService), e.g. 'product'. */
+  model: string
+  notFoundMessage?: string
+  /** Fields matched by `?q=` */
+  search?: string[]
+  /** Map of prisma field → filter backend */
+  filters?: Record<string, FilterBackend>
+  sortable?: string[]
+  defaultOrder?: Record<string, "asc" | "desc">
+  /** Prisma include for retrieve (and optionally list). */
+  include?: unknown
+  /** Prisma select for list rows. */
+  listSelect?: unknown
+  /**
+   * Opt-in org list cache. When set, list() is cached by query variant;
+   * create/update/destroy invalidate the scope for that org.
+   */
+  listCache?: ListCacheConfig
+}
+
+export type DefinedResource = ResourceConfig & {
+  notFoundMessage: string
+}
+
+export function defineResource(config: ResourceConfig): DefinedResource {
+  return {
+    ...config,
+    notFoundMessage: config.notFoundMessage ?? `${config.model} not found`,
+  }
+}
+
+/** Always scopes by orgId — like DRF get_queryset().filter(org=…). */
+export function buildWhereFromQuery(
+  resource: DefinedResource,
+  orgId: string,
+  query: Record<string, unknown> = {},
+): WhereClause {
+  const where: WhereClause = { orgId }
+
+  if (resource.search?.length) {
+    applySearch(where, resource.search, query.q)
+  }
+
+  for (const [field, backend] of Object.entries(resource.filters ?? {})) {
+    backend.apply({ query, where, field })
+  }
+
+  return where
+}
+
+export function resolveOrder(
+  resource: DefinedResource,
+  query: { sortBy?: string; sortDirection?: "asc" | "desc" } = {},
+): Record<string, "asc" | "desc"> {
+  const sortBy = query.sortBy
+  const dir = query.sortDirection ?? "desc"
+  if (sortBy && resource.sortable?.includes(sortBy)) {
+    return { [sortBy]: dir }
+  }
+  return resource.defaultOrder ?? { createdAt: "desc" }
+}
