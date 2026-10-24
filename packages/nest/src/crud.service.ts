@@ -140,12 +140,15 @@ export class OrgCrudService {
     return this.transformDetail(row)
   }
 
-  async create(
-    orgId: string,
-    data: Record<string, unknown>,
-  ): Promise<OrgRow> {
-    await this.assertCreate(orgId, data)
-    const payload = await this.mapCreateData(orgId, data)
+  /**
+   * `data` is `any` and trailing args are open so domain services can use
+   * concrete DTOs + ApprovalActor without TS2416.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async create(orgId: string, data: any, ..._extra: any[]): Promise<OrgRow> {
+    const record = data as Record<string, unknown>
+    await this.assertCreate(orgId, record)
+    const payload = await this.mapCreateData(orgId, record)
     const row = await this.delegate.create({
       data: { ...payload, orgId },
       ...(this.resource.include ? { include: this.resource.include } : {}),
@@ -157,11 +160,15 @@ export class OrgCrudService {
   async update(
     orgId: string,
     id: number,
-    data: Record<string, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ..._extra: any[]
   ): Promise<OrgRow> {
+    const record = data as Record<string, unknown>
     await this.retrieve(orgId, id)
-    await this.assertUpdate(orgId, id, data)
-    const payload = await this.mapUpdateData(orgId, id, data)
+    await this.assertUpdate(orgId, id, record)
+    const payload = await this.mapUpdateData(orgId, id, record)
     const row = await this.delegate.update({
       where: { id },
       data: payload,
