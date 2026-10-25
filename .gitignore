@@ -2,6 +2,10 @@ node_modules
 dist
 !packages/nest/dist/
 !packages/nest/dist/**
+!packages/money/dist/
+!packages/money/dist/**
+!packages/company-finance/dist/
+!packages/company-finance/dist/**
 *.tsbuildinfo
 .DS_Store
 .env

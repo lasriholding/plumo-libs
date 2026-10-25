@@ -86,7 +86,7 @@ Schema-agnostic company AR/AP balances, ledger mapping, timeline, period summary
 | Mapping | `mapToLedger`, `createFieldMapper`, `createRuleMapper` |
 | Timeline | `buildTimeline`, `buildPeriodTimeline`, `filterEntriesByPeriod` |
 | Period | `summarizeEntries`, `summarizePeriod`, `groupEntries`, `balancesByGroup` |
-| Classify | `classifyBalance`, `filterByBalanceState` |
+| Classify | `classifyBalance`, `filterByBalanceState`, `creditLimitStatus`, `matchesCreditLimitState` |
 
 **Design:** apps supply mappers/rules for *their* document shapes — no Nest/Prisma/OBS/BHL types in the package.
 

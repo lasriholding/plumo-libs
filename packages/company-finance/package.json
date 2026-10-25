@@ -13,15 +13,15 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "examples"],
+  "files": ["dist", "examples", "README.md"],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean --external @plumo/money",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test src/**/*.test.ts",
     "learn": "tsx examples/learn.ts"
   },
-  "dependencies": {
-    "@plumo/money": "workspace:*"
+  "peerDependencies": {
+    "@plumo/money": ">=0.1.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
@@ -34,6 +34,7 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
+    "@plumo/money": "workspace:*",
     "tsup": "^8.5.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"

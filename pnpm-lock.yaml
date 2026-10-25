@@ -13,11 +13,10 @@ importers:
         version: 4.23.15
 
   packages/company-finance:
-    dependencies:
+    devDependencies:
       '@plumo/money':
         specifier: workspace:*
         version: link:../money
-    devDependencies:
       tsup:
         specifier: ^8.5.0
         version: 8.5.1(tsx@4.23.15)(typescript@5.9.3)

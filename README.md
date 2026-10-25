@@ -25,13 +25,20 @@ pnpm smoke
 
 ## Consume
 
-**From GitHub** (subdir; `prepare` builds `dist`):
+**From GitHub** (subdir; **prebuilt `dist` committed** — no install-time `prepare` / `tsup`):
+
+Packages that ship committed `dist` today: `@plumo/nest`, `@plumo/money`, `@plumo/company-finance`.
 
 ```bash
 pnpm add github:lasriholding/plumo-libs#path:packages/nest
 pnpm add github:lasriholding/plumo-libs#path:packages/money
-# …same for csv, print, company-finance, stock
+pnpm add github:lasriholding/plumo-libs#path:packages/company-finance
+# …same pattern for csv / print / stock once their dist is committed
 ```
+
+`@plumo/company-finance` peers `@plumo/money` — add both.
+
+After changing source: `pnpm --filter <pkg> build`, commit updated `dist`, push, then bump consumer lockfiles.
 
 **From GitHub Packages** (after publish):
 
@@ -42,7 +49,7 @@ pnpm add github:lasriholding/plumo-libs#path:packages/money
 ```
 
 ```bash
-pnpm add @plumo/money @plumo/csv @plumo/print @plumo/nest
+pnpm add @plumo/money @plumo/csv @plumo/print @plumo/nest @plumo/company-finance
 ```
 
 ### money
