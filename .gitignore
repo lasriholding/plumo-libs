@@ -1,5 +1,7 @@
 node_modules
 dist
+!packages/nest/dist/
+!packages/nest/dist/**
 *.tsbuildinfo
 .DS_Store
 .env
