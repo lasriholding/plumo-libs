@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean --external @plumo/money",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test src/**/*.test.ts",
     "learn": "tsx examples/learn.ts"
   },
   "dependencies": {

@@ -70,3 +70,16 @@ export type BalanceClassifyOptions = {
   /** Absolute net below this is treated as balanced (default 0.005). */
   epsilon?: number
 }
+
+/** Credit / threshold filters for company lists (receivable vs limit). */
+export type CreditLimitState =
+  | "nearCreditLimit"
+  | "exceededCreditLimit"
+  | "allPaidUp"
+
+export type CreditLimitOptions = {
+  /** Fraction of threshold that starts "near" (default 0.8). */
+  nearRatio?: number
+  /** Absolute owedByThem at/below this is treated as paid up (default 0.005). */
+  epsilon?: number
+}

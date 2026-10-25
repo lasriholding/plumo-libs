@@ -8,6 +8,8 @@ export type {
   PeriodFilter,
   BalanceState,
   BalanceClassifyOptions,
+  CreditLimitState,
+  CreditLimitOptions,
 } from "./types.js"
 
 export {
@@ -63,4 +65,6 @@ export {
   classifyBalance,
   matchesBalanceState,
   filterByBalanceState,
+  creditLimitStatus,
+  matchesCreditLimitState,
 } from "./classify.js"

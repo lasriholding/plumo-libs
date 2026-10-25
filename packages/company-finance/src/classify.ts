@@ -3,6 +3,8 @@ import type {
   BalanceClassifyOptions,
   BalanceState,
   CompanyBalance,
+  CreditLimitOptions,
+  CreditLimitState,
 } from "./types.js"
 
 export function classifyBalance(
@@ -38,4 +40,37 @@ export function filterByBalanceState<T>(
   return rows.filter((row) =>
     matchesBalanceState(getBalance(row), state, options),
   )
+}
+
+/**
+ * Classify receivable (`owedByThem`) against a company credit threshold.
+ * Returns `null` when the balance is within limit (or no threshold applies).
+ */
+export function creditLimitStatus(
+  balance: CompanyBalance,
+  threshold: number,
+  options: CreditLimitOptions = {},
+): CreditLimitState | null {
+  const epsilon = options.epsilon ?? 0.005
+  const nearRatio = options.nearRatio ?? 0.8
+  const owed = roundMoney(balance.owedByThem)
+
+  if (owed <= epsilon) return "allPaidUp"
+
+  const limit = Number(threshold) || 0
+  if (limit <= 0) return null
+
+  if (owed >= limit) return "exceededCreditLimit"
+  if (owed >= limit * nearRatio) return "nearCreditLimit"
+  return null
+}
+
+export function matchesCreditLimitState(
+  balance: CompanyBalance,
+  threshold: number,
+  state: CreditLimitState | undefined,
+  options?: CreditLimitOptions,
+): boolean {
+  if (!state) return true
+  return creditLimitStatus(balance, threshold, options) === state
 }

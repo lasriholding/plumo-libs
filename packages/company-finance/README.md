@@ -197,6 +197,8 @@ Return `null` from `effect` / use `skip` to ignore rows (drafts, cancelled, …)
 
 ## Company list filters
 
+### AR / AP side
+
 ```ts
 import { classifyBalance, filterByBalanceState } from '@plumo/company-finance'
 
@@ -209,6 +211,29 @@ filterByBalanceState(companies, (c) => c.balance, 'they_owe')
 | `we_owe` | only payable |
 | `both` | both sides non-zero |
 | `balanced` | both ~0 (within epsilon) |
+
+### Credit / threshold
+
+Compares `owedByThem` to a company credit limit (`threshold`).
+
+```ts
+import {
+  creditLimitStatus,
+  matchesCreditLimitState,
+} from '@plumo/company-finance'
+
+creditLimitStatus(balance, company.threshold)
+// 'allPaidUp' | 'nearCreditLimit' | 'exceededCreditLimit' | null
+
+matchesCreditLimitState(balance, company.threshold, 'nearCreditLimit')
+```
+
+| State | Meaning |
+|-------|---------|
+| `allPaidUp` | `owedByThem` ≤ epsilon |
+| `nearCreditLimit` | ≥ `nearRatio` × threshold and < threshold (default ratio 0.8) |
+| `exceededCreditLimit` | ≥ threshold (threshold must be > 0) |
+| `null` (status only) | owing but under the near band, or no threshold |
 
 ---
 
@@ -230,13 +255,13 @@ balanceOrEmpty(map, 12)
 
 | Area | Exports |
 |------|---------|
-| Types | `LedgerEntry`, `LedgerEffect`, `CompanyBalance`, `TimelineRow`, `PeriodFilter`, `BalanceState` |
+| Types | `LedgerEntry`, `LedgerEffect`, `CompanyBalance`, `TimelineRow`, `PeriodFilter`, `BalanceState`, `CreditLimitState`, `CreditLimitOptions` |
 | Effects | `Effect`, `charge`, `settle`, `delta`, `netEffect`, `entryDelta`, `netDelta` |
 | Map | `mapToLedger`, `createRuleMapper`, `createFieldMapper` |
 | Balance | `buildBalanceFromTotals`, `buildBalanceFromEntries`, `balanceOf`, `emptyBalance`, `applyDelta`, `mergeBalances`, `indexBalances`, `balanceOrEmpty`, `invertBalance`, `isBalanced` |
 | Timeline | `buildTimeline`, `buildPeriodTimeline`, `filterEntriesByPeriod`, `sortEntries` |
 | Period | `summarizeEntries`, `summarizePeriod`, `groupEntries`, `balancesByGroup` |
-| Classify | `classifyBalance`, `matchesBalanceState`, `filterByBalanceState` |
+| Classify | `classifyBalance`, `matchesBalanceState`, `filterByBalanceState`, `creditLimitStatus`, `matchesCreditLimitState` |
 
 ---
 
