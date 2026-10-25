@@ -11,6 +11,7 @@ Shared npm packages for Plumo ERP systems.
 | `@plumo/print` | HTML print engine, commercial templates, preview/bulk |
 | `@plumo/company-finance` | Generic company balance / ledger / situation (any schema) |
 | `@plumo/stock` | Stock movements, adjustments, availability, history planning |
+| `@plumo/nest` | DRF-like Nest org-scoped CRUD: resources, filters, approvals, nested |
 
 ## Develop
 
@@ -20,7 +21,19 @@ pnpm build
 pnpm smoke
 ```
 
+`@plumo/nest` also: `pnpm --filter @plumo/nest test`
+
 ## Consume
+
+**From GitHub** (subdir; `prepare` builds `dist`):
+
+```bash
+pnpm add github:lasriholding/plumo-libs#path:packages/nest
+pnpm add github:lasriholding/plumo-libs#path:packages/money
+# …same for csv, print, company-finance, stock
+```
+
+**From GitHub Packages** (after publish):
 
 `.npmrc`:
 
@@ -29,7 +42,7 @@ pnpm smoke
 ```
 
 ```bash
-pnpm add @plumo/money @plumo/csv @plumo/print
+pnpm add @plumo/money @plumo/csv @plumo/print @plumo/nest
 ```
 
 ### money
@@ -72,3 +85,40 @@ await printCommercialDocument({
   totalAmount: 120,
 })
 ```
+
+### nest
+
+Peers: `@nestjs/common`, `class-validator`, `class-transformer`, `reflect-metadata`.
+
+```ts
+import {
+  defineResource,
+  Filter,
+  OrgCrudService,
+  OrgCrudController,
+} from '@plumo/nest'
+
+export const contactResource = defineResource({
+  model: 'contact',
+  search: ['firstName', 'lastName', 'email'],
+  filters: { email: Filter.exact() },
+  sortable: ['createdAt', 'firstName'],
+  defaultOrder: { createdAt: 'desc' },
+})
+
+@Injectable()
+export class ContactsService extends OrgCrudService {
+  constructor(prisma: PrismaService) {
+    super(prisma, contactResource)
+  }
+}
+
+@Controller('contacts')
+export class ContactsController extends OrgCrudController {
+  constructor(protected readonly service: ContactsService) {
+    super()
+  }
+}
+```
+
+See [`packages/nest/README.md`](packages/nest/README.md) for list modes, approvals, nested CRUD, and cache.
