@@ -16,6 +16,7 @@
   "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean --external @nestjs/common --external class-validator --external class-transformer",
+    "prepare": "pnpm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test src/**/*.test.ts"
   },
